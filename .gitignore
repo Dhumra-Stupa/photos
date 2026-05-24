@@ -1,0 +1,17 @@
+# .NET build output
+**/bin/
+**/obj/
+
+# Node / Vite
+node_modules/
+photo-ui/dist/
+photo-ui/.vite/
+
+# Local SQLite database (user-specific, lives in %APPDATA%)
+*.db
+*.db-shm
+*.db-wal
+
+# OS noise
+Thumbs.db
+.DS_Store

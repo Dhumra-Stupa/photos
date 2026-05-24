@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoIndexer", "PhotoIndexer\PhotoIndexer.csproj", "{60356F4C-09C2-BEC4-1ED3-4BF150E7E3F6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PhotoWeb", "PhotoWeb\PhotoWeb.fsproj", "{B5C4D3E2-F1A0-9876-DCBA-FE9876543210}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60356F4C-09C2-BEC4-1ED3-4BF150E7E3F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60356F4C-09C2-BEC4-1ED3-4BF150E7E3F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60356F4C-09C2-BEC4-1ED3-4BF150E7E3F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60356F4C-09C2-BEC4-1ED3-4BF150E7E3F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5C4D3E2-F1A0-9876-DCBA-FE9876543210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5C4D3E2-F1A0-9876-DCBA-FE9876543210}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5C4D3E2-F1A0-9876-DCBA-FE9876543210}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5C4D3E2-F1A0-9876-DCBA-FE9876543210}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {41A5D40D-D957-46FC-A839-A895DD9D556B}
+	EndGlobalSection
+EndGlobal
