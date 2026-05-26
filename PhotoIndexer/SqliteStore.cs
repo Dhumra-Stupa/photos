@@ -58,6 +58,7 @@ public static class SqliteStore
 
     private static void EnsureSchema(SqliteConnection conn)
     {
+        // Create table (no-op if it already exists).
         using var cmd = conn.CreateCommand();
         cmd.CommandText = """
             CREATE TABLE IF NOT EXISTS photos (
@@ -79,6 +80,25 @@ public static class SqliteStore
             CREATE INDEX IF NOT EXISTS idx_root ON photos(root_folder);
             """;
         cmd.ExecuteNonQuery();
+
+        // Migrate existing databases that pre-date the camera_model column.
+        var existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        using var pragma = conn.CreateCommand();
+        pragma.CommandText = "PRAGMA table_info(photos)";
+        using var r = pragma.ExecuteReader();
+        while (r.Read()) existing.Add(r.GetString(1)); // column 1 = name
+
+        if (!existing.Contains("camera_model"))
+        {
+            using var alter = conn.CreateCommand();
+            alter.CommandText = "ALTER TABLE photos ADD COLUMN camera_model TEXT";
+            alter.ExecuteNonQuery();
+        }
+
+        // Create camera index after migration ensures the column exists.
+        using var idxCmd = conn.CreateCommand();
+        idxCmd.CommandText = "CREATE INDEX IF NOT EXISTS idx_camera ON photos(camera_model)";
+        idxCmd.ExecuteNonQuery();
     }
 
     private static SqliteConnection Open()
