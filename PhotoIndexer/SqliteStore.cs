@@ -27,12 +27,12 @@ public static class SqliteStore
         using var ins = conn.CreateCommand();
         ins.Transaction = tx;
         ins.CommandText = """
-            INSERT INTO photos
+            INSERT OR REPLACE INTO photos
                 (full_path, relative_path, root_folder, size_bytes, last_modified,
-                 date_taken, lens_model, f_number, exposure_time_ms, iso_speed, focal_length_mm)
+                 date_taken, camera_model, lens_model, f_number, exposure_time_ms, iso_speed, focal_length_mm)
             VALUES
                 ($full_path, $relative_path, $root_folder, $size_bytes, $last_modified,
-                 $date_taken, $lens_model, $f_number, $exposure_time_ms, $iso_speed, $focal_length_mm)
+                 $date_taken, $camera_model, $lens_model, $f_number, $exposure_time_ms, $iso_speed, $focal_length_mm)
             """;
 
         foreach (var p in folderIndex.Files)
@@ -44,6 +44,7 @@ public static class SqliteStore
             ins.Parameters.AddWithValue("$size_bytes", p.SizeBytes);
             ins.Parameters.AddWithValue("$last_modified", p.LastModified.ToString("yyyy-MM-ddTHH:mm:ss"));
             ins.Parameters.AddWithValue("$date_taken", (object?)p.DateTaken?.ToString("yyyy-MM-ddTHH:mm:ss") ?? DBNull.Value);
+            ins.Parameters.AddWithValue("$camera_model", (object?)p.CameraModel ?? DBNull.Value);
             ins.Parameters.AddWithValue("$lens_model", (object?)p.LensModel ?? DBNull.Value);
             ins.Parameters.AddWithValue("$f_number", (object?)p.FNumber ?? DBNull.Value);
             ins.Parameters.AddWithValue("$exposure_time_ms", (object?)p.ExposureTimeMs ?? DBNull.Value);
@@ -66,6 +67,7 @@ public static class SqliteStore
                 size_bytes       INTEGER NOT NULL,
                 last_modified    TEXT NOT NULL,
                 date_taken       TEXT,
+                camera_model     TEXT,
                 lens_model       TEXT,
                 f_number         REAL,
                 exposure_time_ms REAL,

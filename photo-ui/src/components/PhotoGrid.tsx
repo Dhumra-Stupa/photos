@@ -6,12 +6,14 @@ const PAGE_SIZE = 60
 
 interface Props {
   date: string | null
+  camera: string | null
   lens: string | null
   focalLength: number | null
 }
 
 function tileTooltip(p: Photo): string {
   return [
+    p.cameraModel,
     p.lensModel,
     p.fNumber != null ? `f/${p.fNumber.toFixed(1)}` : null,
     p.focalLengthMm != null ? `${p.focalLengthMm.toFixed(0)} mm` : null,
@@ -29,7 +31,7 @@ function tileCaption(p: Photo): string {
   return p.relativePath.split(/[\\/]/).pop() ?? p.relativePath
 }
 
-export default function PhotoGrid({ date, lens, focalLength }: Props) {
+export default function PhotoGrid({ date, camera, lens, focalLength }: Props) {
   const [photos, setPhotos] = useState<Photo[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [windowStart, setWindowStart] = useState(0)
@@ -50,8 +52,8 @@ export default function PhotoGrid({ date, lens, focalLength }: Props) {
     setSliderValue(0)
 
     Promise.all([
-      fetchPhotoCount(date, lens, focalLength),
-      fetchPhotos(date, lens, focalLength, 0, PAGE_SIZE),
+      fetchPhotoCount(date, camera, lens, focalLength),
+      fetchPhotos(date, camera, lens, focalLength, 0, PAGE_SIZE),
     ])
       .then(([count, data]) => {
         setTotalCount(count)
@@ -59,7 +61,7 @@ export default function PhotoGrid({ date, lens, focalLength }: Props) {
         setLoading(false)
       })
       .catch(err => { setError(String(err)); setLoading(false) })
-  }, [date, lens, focalLength])
+  }, [date, camera, lens, focalLength])
 
   // Sequential image loading: one at a time via a queue + IntersectionObserver
   useEffect(() => {
@@ -111,7 +113,7 @@ export default function PhotoGrid({ date, lens, focalLength }: Props) {
         if (!entry.isIntersecting) return
         const nextOffset = windowStart + photos.length
         setLoadingMore(true)
-        fetchPhotos(date, lens, focalLength, nextOffset, PAGE_SIZE)
+        fetchPhotos(date, camera, lens, focalLength, nextOffset, PAGE_SIZE)
           .then(data => {
             setPhotos(prev => [...prev, ...data])
             setLoadingMore(false)
@@ -122,7 +124,7 @@ export default function PhotoGrid({ date, lens, focalLength }: Props) {
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [photos.length, windowStart, totalCount, loading, loadingMore, date, lens, focalLength])
+  }, [photos.length, windowStart, totalCount, loading, loadingMore, date, camera, lens, focalLength])
 
   // Jump to a position in the collection when slider is released
   const jumpTo = useCallback((value: number) => {
@@ -131,10 +133,10 @@ export default function PhotoGrid({ date, lens, focalLength }: Props) {
     setWindowStart(offset)
     setPhotos([])
     setLoading(true)
-    fetchPhotos(date, lens, focalLength, offset, PAGE_SIZE)
+    fetchPhotos(date, camera, lens, focalLength, offset, PAGE_SIZE)
       .then(data => { setPhotos(data); setLoading(false) })
       .catch(err => { setError(String(err)); setLoading(false) })
-  }, [date, lens, focalLength, totalCount])
+  }, [date, camera, lens, focalLength, totalCount])
 
   if (loading && photos.length === 0) return <div className="status">Loading…</div>
   if (error)   return <div className="status">Error: {error}</div>

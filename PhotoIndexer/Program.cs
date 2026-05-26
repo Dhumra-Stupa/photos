@@ -74,13 +74,14 @@ static int RunList(string[] args)
         return 0;
     }
 
-    Console.WriteLine("FullPath,DateTaken,SizeBytes,LensModel,FNumber,ExposureTimeMs,IsoSpeed,FocalLengthMm");
+    Console.WriteLine("FullPath,DateTaken,SizeBytes,CameraModel,LensModel,FNumber,ExposureTimeMs,IsoSpeed,FocalLengthMm");
     foreach (var f in files)
     {
         Console.WriteLine(string.Join(",",
             CsvField(f.FullPath),
             CsvField(f.DateTaken?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""),
             f.SizeBytes,
+            CsvField(f.CameraModel ?? ""),
             CsvField(f.LensModel ?? ""),
             f.FNumber.HasValue ? f.FNumber.Value.ToString("F1") : "",
             f.ExposureTimeMs.HasValue ? f.ExposureTimeMs.Value.ToString("F3") : "",
@@ -176,6 +177,7 @@ static int RunFind(string[] args)
     Console.WriteLine($"Size        : {FormatSize(entry.SizeBytes)}");
     Console.WriteLine($"LastModified: {entry.LastModified:yyyy-MM-dd HH:mm:ss} UTC");
     Console.WriteLine($"DateTaken   : {(entry.DateTaken.HasValue ? entry.DateTaken.Value.ToString("yyyy-MM-dd HH:mm:ss") : "-")}");
+    Console.WriteLine($"CameraModel : {entry.CameraModel ?? "-"}");
     Console.WriteLine($"LensModel   : {entry.LensModel ?? "-"}");
     Console.WriteLine($"F-Stop      : {(entry.FNumber.HasValue ? $"f/{entry.FNumber.Value:F1}" : "-")}");
     Console.WriteLine($"Exposure    : {(entry.ExposureTimeMs.HasValue ? $"{entry.ExposureTimeMs.Value:F3} ms" : "-")}");

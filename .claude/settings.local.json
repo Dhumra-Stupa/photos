@@ -4,7 +4,10 @@
       "PowerShell(cd c:\\\\code\\\\photos; dotnet run --project PhotoIndexer -- list 2>&1 | Where-Object { $_ -match \"2019-04\" } | Select-Object -First 5)",
       "PowerShell($indexPath = \"$env:APPDATA\\\\PhotoIndexer\\\\index.json\"; $json = Get-Content $indexPath -Raw | ConvertFrom-Json; $json.indexes.PSObject.Properties.Name)",
       "PowerShell(\\(Get-Command node -ErrorAction SilentlyContinue\\).Source; \\(Get-Command npm -ErrorAction SilentlyContinue\\).Source)",
-      "PowerShell(npm install 2>&1)"
+      "PowerShell(npm install 2>&1)",
+      "PowerShell(Get-ChildItem \"c:\\\\code\\\\photos\\\\photo-ui\" -Recurse -File -Exclude \"node_modules\" | Where-Object { $_.FullName -notmatch \"node_modules\" } | Select-Object FullName)",
+      "Bash(dotnet build *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

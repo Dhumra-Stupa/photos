@@ -4,6 +4,7 @@ export interface Photo {
   sizeBytes: number
   lastModified: string
   dateTaken: string | null
+  cameraModel: string | null
   lensModel: string | null
   fNumber: number | null
   exposureTimeMs: number | null

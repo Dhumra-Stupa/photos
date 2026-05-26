@@ -24,7 +24,7 @@ public static class Scanner
                 continue;
 
             var info = new FileInfo(file);
-            var (dateTaken, lensModel, fNumber, exposureTimeMs, isoSpeed, focalLengthMm) = ReadExif(file);
+            var (dateTaken, cameraModel, lensModel, fNumber, exposureTimeMs, isoSpeed, focalLengthMm) = ReadExif(file);
 
             index.Files.Add(new PhotoEntry
             {
@@ -33,6 +33,7 @@ public static class Scanner
                 SizeBytes = info.Length,
                 LastModified = info.LastWriteTimeUtc,
                 DateTaken = dateTaken,
+                CameraModel = cameraModel,
                 LensModel = lensModel,
                 FNumber = fNumber,
                 ExposureTimeMs = exposureTimeMs,
@@ -44,17 +45,20 @@ public static class Scanner
         return index;
     }
 
-    private static (DateTime? dateTaken, string? lensModel, double? fNumber, double? exposureTimeMs, int? isoSpeed, double? focalLengthMm) ReadExif(string file)
+    private static (DateTime? dateTaken, string? cameraModel, string? lensModel, double? fNumber, double? exposureTimeMs, int? isoSpeed, double? focalLengthMm) ReadExif(string file)
     {
         try
         {
             var dirs = ImageMetadataReader.ReadMetadata(file);
 
-            var exifSub = dirs.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+            var exifIfd0 = dirs.OfType<ExifIfd0Directory>().FirstOrDefault();
+            var exifSub  = dirs.OfType<ExifSubIfdDirectory>().FirstOrDefault();
 
             DateTime? dateTaken = null;
             if (exifSub is not null && exifSub.TryGetDateTime(ExifDirectoryBase.TagDateTimeOriginal, out var dt))
                 dateTaken = dt;
+
+            string? cameraModel = NullIfEmpty(exifIfd0?.GetDescription(ExifDirectoryBase.TagModel));
 
             // TagLensModel (0xA434) is often empty for third-party lenses; fall back to
             // maker-note "Lens Type" (Canon) or "Lens Specification" (focal-range string).
@@ -79,11 +83,11 @@ public static class Scanner
             if (exifSub is not null && exifSub.TryGetRational(ExifDirectoryBase.TagFocalLength, out var flRat) && flRat.Denominator != 0)
                 focalLengthMm = (double)flRat.Numerator / flRat.Denominator;
 
-            return (dateTaken, lensModel, fNumber, exposureTimeMs, isoSpeed, focalLengthMm);
+            return (dateTaken, cameraModel, lensModel, fNumber, exposureTimeMs, isoSpeed, focalLengthMm);
         }
         catch
         {
-            return (null, null, null, null, null, null);
+            return (null, null, null, null, null, null, null);
         }
     }
 

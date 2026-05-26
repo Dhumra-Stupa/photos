@@ -2,6 +2,7 @@ import type { Photo, YearNode } from './types'
 
 export async function fetchPhotos(
   date: string | null,
+  camera: string | null,
   lens: string | null,
   focalLength: number | null,
   offset = 0,
@@ -9,6 +10,7 @@ export async function fetchPhotos(
 ): Promise<Photo[]> {
   const params = new URLSearchParams()
   if (date) params.set('date', date)
+  if (camera) params.set('camera', camera)
   if (lens) params.set('lens', lens)
   if (focalLength != null) params.set('focalLength', String(focalLength))
   params.set('offset', String(offset))
@@ -20,11 +22,13 @@ export async function fetchPhotos(
 
 export async function fetchPhotoCount(
   date: string | null,
+  camera: string | null,
   lens: string | null,
   focalLength: number | null,
 ): Promise<number> {
   const params = new URLSearchParams()
   if (date) params.set('date', date)
+  if (camera) params.set('camera', camera)
   if (lens) params.set('lens', lens)
   if (focalLength != null) params.set('focalLength', String(focalLength))
   const res = await fetch(`/api/photos/count?${params}`)
@@ -34,10 +38,12 @@ export async function fetchPhotoCount(
 
 export async function fetchFocalLengths(
   date: string | null,
+  camera: string | null,
   lens: string | null,
 ): Promise<number[]> {
   const params = new URLSearchParams()
   if (date) params.set('date', date)
+  if (camera) params.set('camera', camera)
   if (lens) params.set('lens', lens)
   const res = await fetch(`/api/focal-lengths?${params}`)
   if (!res.ok) throw new Error(`fetchFocalLengths failed: ${res.status}`)
@@ -50,8 +56,16 @@ export async function fetchDates(): Promise<YearNode[]> {
   return res.json()
 }
 
-export async function fetchLenses(): Promise<string[]> {
-  const res = await fetch('/api/lenses')
+export async function fetchCameras(): Promise<string[]> {
+  const res = await fetch('/api/cameras')
+  if (!res.ok) throw new Error(`fetchCameras failed: ${res.status}`)
+  return res.json()
+}
+
+export async function fetchLenses(camera: string | null = null): Promise<string[]> {
+  const params = new URLSearchParams()
+  if (camera) params.set('camera', camera)
+  const res = await fetch(`/api/lenses?${params}`)
   if (!res.ok) throw new Error(`fetchLenses failed: ${res.status}`)
   return res.json()
 }

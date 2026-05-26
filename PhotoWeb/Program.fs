@@ -24,27 +24,30 @@ let main args =
     let app = builder.Build()
     app.UseCors() |> ignore
 
-    // GET /api/photos?date=...&lens=...&focalLength=...&offset=0&limit=60
-    app.MapGet("/api/photos", Func<string, string, Nullable<int>, Nullable<int>, Nullable<int>, IResult>(fun date lens focalLength offset limit ->
-        let dateOpt        = Option.ofObj date |> Option.filter (fun d -> d <> "all")
+    // GET /api/photos?date=...&camera=...&lens=...&focalLength=...&offset=0&limit=60
+    app.MapGet("/api/photos", Func<string, string, string, Nullable<int>, Nullable<int>, Nullable<int>, IResult>(fun date camera lens focalLength offset limit ->
+        let dateOpt        = Option.ofObj date   |> Option.filter (fun d -> d <> "all")
+        let cameraOpt      = Option.ofObj camera
         let lensOpt        = Option.ofObj lens
         let focalLengthOpt = if focalLength.HasValue then Some focalLength.Value else None
         let off = if offset.HasValue then offset.Value else 0
         let lim = if limit.HasValue  then limit.Value  else 1_000_000
-        Results.Ok(PhotoDb.getPhotos dateOpt lensOpt focalLengthOpt off lim))) |> ignore
+        Results.Ok(PhotoDb.getPhotos dateOpt cameraOpt lensOpt focalLengthOpt off lim))) |> ignore
 
-    // GET /api/photos/count?date=...&lens=...&focalLength=...
-    app.MapGet("/api/photos/count", Func<string, string, Nullable<int>, IResult>(fun date lens focalLength ->
-        let dateOpt        = Option.ofObj date |> Option.filter (fun d -> d <> "all")
+    // GET /api/photos/count?date=...&camera=...&lens=...&focalLength=...
+    app.MapGet("/api/photos/count", Func<string, string, string, Nullable<int>, IResult>(fun date camera lens focalLength ->
+        let dateOpt        = Option.ofObj date   |> Option.filter (fun d -> d <> "all")
+        let cameraOpt      = Option.ofObj camera
         let lensOpt        = Option.ofObj lens
         let focalLengthOpt = if focalLength.HasValue then Some focalLength.Value else None
-        Results.Ok(PhotoDb.getPhotosCount dateOpt lensOpt focalLengthOpt))) |> ignore
+        Results.Ok(PhotoDb.getPhotosCount dateOpt cameraOpt lensOpt focalLengthOpt))) |> ignore
 
-    // GET /api/focal-lengths?date=...&lens=...
-    app.MapGet("/api/focal-lengths", Func<string, string, IResult>(fun date lens ->
-        let dateOpt = Option.ofObj date |> Option.filter (fun d -> d <> "all")
-        let lensOpt = Option.ofObj lens
-        Results.Ok(PhotoDb.getFocalLengths dateOpt lensOpt))) |> ignore
+    // GET /api/focal-lengths?date=...&camera=...&lens=...
+    app.MapGet("/api/focal-lengths", Func<string, string, string, IResult>(fun date camera lens ->
+        let dateOpt   = Option.ofObj date   |> Option.filter (fun d -> d <> "all")
+        let cameraOpt = Option.ofObj camera
+        let lensOpt   = Option.ofObj lens
+        Results.Ok(PhotoDb.getFocalLengths dateOpt cameraOpt lensOpt))) |> ignore
 
     // GET /api/dates  →  year/month/day tree, descending
     app.MapGet("/api/dates", Func<IResult>(fun () ->
@@ -71,9 +74,14 @@ let main args =
             |> Array.sortByDescending (fun y -> y.year)
         Results.Ok(tree))) |> ignore
 
-    // GET /api/lenses
-    app.MapGet("/api/lenses", Func<IResult>(fun () ->
-        Results.Ok(PhotoDb.getLenses()))) |> ignore
+    // GET /api/cameras
+    app.MapGet("/api/cameras", Func<IResult>(fun () ->
+        Results.Ok(PhotoDb.getCameraModels()))) |> ignore
+
+    // GET /api/lenses?camera=...
+    app.MapGet("/api/lenses", Func<string, IResult>(fun camera ->
+        let cameraOpt = Option.ofObj camera
+        Results.Ok(PhotoDb.getLenses cameraOpt))) |> ignore
 
     // GET /api/image?path=<full-path>
     // Verifies path is in the DB before serving to prevent arbitrary file access.

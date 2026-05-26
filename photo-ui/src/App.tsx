@@ -1,27 +1,36 @@
 import { useState, useEffect } from 'react'
 import DateTree from './components/DateTree'
 import PhotoGrid from './components/PhotoGrid'
-import { fetchLenses, fetchFocalLengths } from './api'
+import { fetchCameras, fetchLenses, fetchFocalLengths } from './api'
 import './App.css'
 
 export default function App() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [selectedCamera, setSelectedCamera] = useState<string | null>(null)
   const [selectedLens, setSelectedLens] = useState<string | null>(null)
   const [selectedFocalLength, setSelectedFocalLength] = useState<number | null>(null)
+  const [cameras, setCameras] = useState<string[]>([])
   const [lenses, setLenses] = useState<string[]>([])
   const [focalLengths, setFocalLengths] = useState<number[]>([])
 
+  // Cameras are global — load once
   useEffect(() => {
-    fetchLenses().then(setLenses).catch(console.error)
+    fetchCameras().then(setCameras).catch(console.error)
   }, [])
 
-  // Reload focal lengths and reset selection whenever date or lens changes
+  // When camera changes: reset lens + reload lens list scoped to that camera
+  useEffect(() => {
+    setSelectedLens(null)
+    fetchLenses(selectedCamera).then(setLenses).catch(console.error)
+  }, [selectedCamera])
+
+  // When date, camera, or lens changes: reset focal length + reload focal length list
   useEffect(() => {
     setSelectedFocalLength(null)
-    fetchFocalLengths(selectedDate, selectedLens)
+    fetchFocalLengths(selectedDate, selectedCamera, selectedLens)
       .then(setFocalLengths)
       .catch(console.error)
-  }, [selectedDate, selectedLens])
+  }, [selectedDate, selectedCamera, selectedLens])
 
   return (
     <div className="app">
@@ -32,6 +41,18 @@ export default function App() {
 
       <main className="content">
         <div className="toolbar">
+          <label htmlFor="camera-filter">Camera</label>
+          <select
+            id="camera-filter"
+            value={selectedCamera ?? ''}
+            onChange={e => setSelectedCamera(e.target.value || null)}
+          >
+            <option value="">All cameras</option>
+            {cameras.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+
           <label htmlFor="lens-filter">Lens</label>
           <select
             id="lens-filter"
@@ -61,7 +82,12 @@ export default function App() {
           )}
         </div>
 
-        <PhotoGrid date={selectedDate} lens={selectedLens} focalLength={selectedFocalLength} />
+        <PhotoGrid
+          date={selectedDate}
+          camera={selectedCamera}
+          lens={selectedLens}
+          focalLength={selectedFocalLength}
+        />
       </main>
     </div>
   )

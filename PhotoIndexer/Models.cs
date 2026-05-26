@@ -9,6 +9,7 @@ public sealed class PhotoEntry
     public long SizeBytes { get; set; }
     public DateTime LastModified { get; set; }
     public DateTime? DateTaken { get; set; }
+    public string? CameraModel { get; set; }
     public string? LensModel { get; set; }
     public double? FNumber { get; set; }
     public double? ExposureTimeMs { get; set; }
